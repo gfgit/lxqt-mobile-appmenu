@@ -31,6 +31,9 @@ public:
 
     bool eventFilter(QObject *watched, QEvent *e) override;
 
+    void loadSettings();
+    void loadMenuFile(const QString& menuFile, const QStringList &environments);
+
 public slots:
     void setSearchQuery(const QString& text);
 
@@ -40,6 +43,9 @@ private slots:
 
     void runPowerDialog();
     void runSystemConfigDialog();
+
+protected:
+    void keyPressEvent(QKeyEvent *e);
 
 private:
     void runCommandHelper(const QString& cmd);

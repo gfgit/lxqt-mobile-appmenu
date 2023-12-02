@@ -6,6 +6,11 @@
 
 int main(int argc, char *argv[])
 {
+    QApplication::setOrganizationDomain(QLatin1String("org.gfgit"));
+    QApplication::setApplicationName(QLatin1String("lxqt-mobile-appmenu"));
+    QApplication::setApplicationDisplayName(QLatin1String("Mobile App Menu (LXQt)"));
+    QApplication::setApplicationVersion(QLatin1String("1.0"));
+
     QApplication a(argc, argv);
     a.setQuitOnLastWindowClosed(true);
 
@@ -19,6 +24,7 @@ int main(int argc, char *argv[])
         }
     }
     AppMenuWindow w;
+    w.loadSettings();
     w.showMaximized();
     return a.exec();
 }

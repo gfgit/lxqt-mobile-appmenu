@@ -16,6 +16,9 @@
 #include <QKeyEvent>
 #include <QCoreApplication>
 
+#include <QSettings>
+#include <XdgMenu>
+
 AppMenuWindow::AppMenuWindow(QWidget *parent)
     : QWidget{parent}
 {
@@ -143,6 +146,12 @@ void AppMenuWindow::runSystemConfigDialog()
     runCommandHelper(QLatin1String("lxqt-config"));
 }
 
+void AppMenuWindow::keyPressEvent(QKeyEvent *e)
+{
+    if(e->key() == Qt::Key_Escape)
+        close();
+}
+
 void AppMenuWindow::resetUi()
 {
     setCurrentCategory(0);
@@ -181,6 +190,35 @@ bool AppMenuWindow::eventFilter(QObject *watched, QEvent *e)
     }
 
     return QWidget::eventFilter(watched, e);
+}
+
+void AppMenuWindow::loadSettings()
+{
+    const QLatin1String defMenuFile("/etc/xdg/menus/lxqt-applications.menu");
+    const QLatin1String defEnv("X-LXQT;LXQt");
+
+    QSettings settings(QSettings::UserScope);
+    settings.beginGroup(QLatin1String("Menu"));
+    QString menuFile = settings.value(QLatin1String("menuFile"), defMenuFile).toString();
+    QStringList environments = settings.value("desktopEnvironments", defEnv).toString().split(QLatin1Char(';'));
+    settings.endGroup();
+
+    loadMenuFile(menuFile, environments);
+}
+
+void AppMenuWindow::loadMenuFile(const QString &menuFile, const QStringList& environments)
+{
+    XdgMenu xdgMenu;
+    xdgMenu.setEnvironments(environments);
+    if(!xdgMenu.read(menuFile))
+    {
+        QMessageBox::warning(this, tr("Invalid Menu"),
+                             tr("Menu file: %1\n"
+                                "Error: %2")
+                                 .arg(menuFile, xdgMenu.errorString()));
+    }
+
+    rebuildMenu(xdgMenu);
 }
 
 void AppMenuWindow::setSearchQuery(const QString &text)
