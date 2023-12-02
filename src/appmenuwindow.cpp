@@ -15,6 +15,7 @@
 #include <QProcess>
 
 #include <QKeyEvent>
+#include <QGestureEvent>
 #include <QCoreApplication>
 
 #include <QSettings>
@@ -65,6 +66,10 @@ AppMenuWindow::AppMenuWindow(QWidget *parent)
     mAppView->setWrapping(true);
     mAppView->setResizeMode(QListView::Adjust);
     mAppView->setModel(mAppModel);
+
+    // Use TapAndHold to show item tooltips
+    mAppView->viewport()->grabGesture(Qt::TapAndHoldGesture);
+    mAppView->viewport()->installEventFilter(this);
 
     mCategoryCombo = new QComboBox;
     mCategoryCombo->setModel(mCategoryModel);
@@ -188,6 +193,23 @@ bool AppMenuWindow::eventFilter(QObject *watched, QEvent *e)
             //TODO: move to appropriate place
             // Use Return Key to launch current application
             appClicked(mAppView->currentIndex());
+        }
+    }
+    else if(watched == mAppView->viewport() && e->type() == QEvent::Gesture)
+    {
+        QGestureEvent *ev = static_cast<QGestureEvent *>(e);
+        if(QGesture *gesture = ev->gesture(Qt::TapAndHoldGesture))
+        {
+            ev->setAccepted(Qt::TapAndHoldGesture);
+            if(gesture->state() == Qt::GestureFinished)
+            {
+                //Send tooltip event on tap and hold
+                QPoint globalPos = gesture->hotSpot().toPoint();
+                QPoint vpPos = mAppView->viewport()->mapFromGlobal(vpPos);
+                QHelpEvent tooltipEvent(QEvent::ToolTip, vpPos, globalPos);
+                QCoreApplication::sendEvent(mAppView->viewport(), &tooltipEvent);
+            }
+            return true;
         }
     }
 
