@@ -17,7 +17,7 @@
 #include <QCoreApplication>
 
 AppMenuWindow::AppMenuWindow(QWidget *parent)
-    : QWidget{parent, Qt::Popup}
+    : QWidget{parent}
 {
     mSearchEdit = new QLineEdit;
     mSearchEdit->setPlaceholderText(tr("Search..."));
@@ -87,6 +87,9 @@ AppMenuWindow::AppMenuWindow(QWidget *parent)
 
     // Filter navigation keys
     mSearchEdit->installEventFilter(this);
+
+    setWindowFlag(Qt::FramelessWindowHint);
+    setWindowFlag(Qt::WindowStaysOnTopHint);
 }
 
 AppMenuWindow::~AppMenuWindow()
