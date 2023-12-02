@@ -5,6 +5,7 @@
 
 class QLineEdit;
 class QToolButton;
+class QComboBox;
 class QListView;
 class QModelIndex;
 
@@ -38,7 +39,7 @@ public slots:
     void setSearchQuery(const QString& text);
 
 private slots:
-    void categoryClicked(const QModelIndex& idx);
+    void categoryClicked(int idx);
     void appClicked(const QModelIndex& idx);
 
     void runPowerDialog();
@@ -51,11 +52,12 @@ private:
     void runCommandHelper(const QString& cmd);
 
 private:
+    QToolButton *mCloseButton;
     QToolButton *mSettingsButton;
     QToolButton *mPowerButton;
     QLineEdit *mSearchEdit;
     QListView *mAppView;
-    QListView *mCategoryView;
+    QComboBox *mCategoryCombo;
 
     MenuAppMap *mAppMap;
     MenuAppModel *mAppModel;

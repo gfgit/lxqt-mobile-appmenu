@@ -5,6 +5,7 @@
 
 #include <QLineEdit>
 #include <QToolButton>
+#include <QComboBox>
 #include <QListView>
 
 #include <QBoxLayout>
@@ -27,6 +28,12 @@ AppMenuWindow::AppMenuWindow(QWidget *parent)
     mSearchEdit->setClearButtonEnabled(true);
     connect(mSearchEdit, &QLineEdit::textEdited, this, &AppMenuWindow::setSearchQuery);
 
+    mCloseButton = new QToolButton;
+    mCloseButton->setIcon(QIcon::fromTheme(QStringLiteral("window-close-symbolic")));
+    mCloseButton->setText(tr("Close"));
+    mCloseButton->setToolTip(mCloseButton->text());
+    connect(mCloseButton, &QToolButton::clicked, this, &AppMenuWindow::close);
+
     mSettingsButton = new QToolButton;
     mSettingsButton->setIcon(QIcon::fromTheme(QStringLiteral("preferences-desktop"))); //TODO: preferences-system?
     mSettingsButton->setText(tr("Settings"));
@@ -39,54 +46,44 @@ AppMenuWindow::AppMenuWindow(QWidget *parent)
     mPowerButton->setToolTip(mPowerButton->text());
     connect(mPowerButton, &QToolButton::clicked, this, &AppMenuWindow::runPowerDialog);
 
-    mAppView = new QListView;
-    mAppView->setUniformItemSizes(true);
-    mAppView->setSelectionMode(QListView::SingleSelection);
-
-    mCategoryView = new QListView;
-    mCategoryView->setUniformItemSizes(true);
-    mCategoryView->setSelectionMode(QListView::SingleSelection);
-
-    // Meld category view with whole popup window
-    // So remove the frame and set same background as the window
-    mCategoryView->setFrameShape(QFrame::NoFrame);
-    mCategoryView->viewport()->setBackgroundRole(QPalette::Window);
-
     mAppMap = new MenuAppMap;
 
     mAppModel = new MenuAppModel(this);
     mAppModel->setAppMap(mAppMap);
-    mAppView->setModel(mAppModel);
 
     mCategoryModel = new MenuCategoriesModel(this);
     mCategoryModel->setAppMap(mAppMap);
-    mCategoryView->setModel(mCategoryModel);
+
+    mAppView = new QListView;
+    mAppView->setUniformItemSizes(true);
+    mAppView->setSelectionMode(QListView::SingleSelection);
+    mAppView->setModel(mAppModel);
+
+    mCategoryCombo = new QComboBox;
+    mCategoryCombo->setModel(mCategoryModel);
 
     connect(mAppView, &QListView::clicked, this, &AppMenuWindow::appClicked);
-    connect(mCategoryView, &QListView::clicked, this, &AppMenuWindow::categoryClicked);
+    connect(mCategoryCombo, qOverload<int>(&QComboBox::activated), this, &AppMenuWindow::categoryClicked);
 
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
 
     QHBoxLayout *buttonLayout = new QHBoxLayout;
-    buttonLayout->addStretch();
     buttonLayout->addWidget(mSettingsButton);
     buttonLayout->addWidget(mPowerButton);
+    buttonLayout->addWidget(mCloseButton);
     mainLayout->addLayout(buttonLayout);
 
     mainLayout->addWidget(mSearchEdit);
 
-    // Use 3:2 stretch factors so app view is slightly wider than category view
-    QHBoxLayout *viewLayout = new QHBoxLayout;
-    viewLayout->addWidget(mAppView, 3);
-    viewLayout->addWidget(mCategoryView, 2);
-    mainLayout->addLayout(viewLayout);
+    mainLayout->addWidget(mCategoryCombo);
+    mainLayout->addWidget(mAppView);
 
     setMinimumHeight(500);
 
     // Ensure all key presses go to search box
     setFocusProxy(mSearchEdit);
     mAppView->setFocusProxy(mSearchEdit);
-    mCategoryView->setFocusProxy(mSearchEdit);
+    mCategoryCombo->setFocusProxy(mSearchEdit);
 
     // Filter navigation keys
     mSearchEdit->installEventFilter(this);
@@ -122,9 +119,9 @@ QSize AppMenuWindow::sizeHint() const
     return QWidget::sizeHint();
 }
 
-void AppMenuWindow::categoryClicked(const QModelIndex &idx)
+void AppMenuWindow::categoryClicked(int idx)
 {
-    setCurrentCategory(idx.row());
+    setCurrentCategory(idx);
 }
 
 void AppMenuWindow::appClicked(const QModelIndex &idx)
@@ -163,9 +160,7 @@ void AppMenuWindow::resetUi()
 
 void AppMenuWindow::setCurrentCategory(int cat)
 {
-    QModelIndex idx = mCategoryModel->index(cat, 0);
-    mCategoryView->setCurrentIndex(idx);
-    mCategoryView->selectionModel()->select(idx, QItemSelectionModel::ClearAndSelect);
+    mCategoryCombo->setCurrentIndex(cat);
     mAppModel->setCurrentCategory(cat);
     mAppModel->endSearch();
 }
