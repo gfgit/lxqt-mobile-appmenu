@@ -57,6 +57,13 @@ AppMenuWindow::AppMenuWindow(QWidget *parent)
     mAppView = new QListView;
     mAppView->setUniformItemSizes(true);
     mAppView->setSelectionMode(QListView::SingleSelection);
+    mAppView->setViewMode(QListView::IconMode);
+    mAppView->setMovement(QListView::Static);
+    int sz = 2 * style()->pixelMetric(QStyle::PM_LargeIconSize);
+    mAppView->setIconSize(QSize(sz, sz));
+    mAppView->setFlow(QListView::LeftToRight);
+    mAppView->setWrapping(true);
+    mAppView->setResizeMode(QListView::Adjust);
     mAppView->setModel(mAppModel);
 
     mCategoryCombo = new QComboBox;
@@ -151,7 +158,7 @@ void AppMenuWindow::keyPressEvent(QKeyEvent *e)
 
 void AppMenuWindow::resetUi()
 {
-    setCurrentCategory(0);
+    setCurrentCategory(1); //Default to "All Applications"
     setSearchQuery(QString());
 
     //TODO: focus proxy doesn't seem to work on first show...

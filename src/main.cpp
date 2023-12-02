@@ -25,6 +25,7 @@ int main(int argc, char *argv[])
     }
     AppMenuWindow w;
     w.loadSettings();
+    w.resetUi();
     w.showMaximized();
     return a.exec();
 }
