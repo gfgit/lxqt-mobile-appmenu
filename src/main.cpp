@@ -1,4 +1,4 @@
-#include "widget.h"
+#include "appmenuwindow.h"
 
 #include <QApplication>
 #include <QLocale>
@@ -7,6 +7,7 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+    a.setQuitOnLastWindowClosed(true);
 
     QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();
@@ -17,7 +18,7 @@ int main(int argc, char *argv[])
             break;
         }
     }
-    Widget w;
-    w.show();
+    AppMenuWindow w;
+    w.showMaximized();
     return a.exec();
 }

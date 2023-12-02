@@ -18,8 +18,14 @@ set(TS_FILES translations/lxqt-mobile-appmenu_it_IT.ts)
 set(PROJECT_SOURCES
         src/main.cpp
 
-        src/widget.cpp
-        src/widget.h
+        src/menuappmap.cpp
+        src/menuappmap.h
+        src/menuappmodel.cpp
+        src/menuappmodel.h
+        src/menucategoriesmodel.cpp
+        src/menucategoriesmodel.h
+        src/appmenuwindow.cpp
+        src/appmenuwindow.h
         
         ${TS_FILES}
 )
@@ -51,7 +57,9 @@ else()
     qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 endif()
 
-target_link_libraries(lxqt-mobile-appmenu PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(lxqt-mobile-appmenu PRIVATE
+    Qt${QT_VERSION_MAJOR}::Widgets
+    Qt5Xdg)
 
 set_target_properties(lxqt-mobile-appmenu PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
