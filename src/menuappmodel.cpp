@@ -46,7 +46,7 @@ QVariant MenuAppModel::data(const QModelIndex &idx, int role) const
         return item->icon;
     case Qt::ToolTipRole:
     {
-        QString arr = item->comment + QLatin1String("\n\n") + item->keywords.join(QLatin1Char('\n'));
+        QString arr = QLatin1String("<b>%1</b><br>%2").arg(item->title.toHtmlEscaped(), item->comment);
         return arr;
     }
     default:
