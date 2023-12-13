@@ -9,8 +9,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt5 REQUIRED COMPONENTS Widgets LinguistTools)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools)
+find_package(QT NAMES Qt5 REQUIRED COMPONENTS Widgets LinguistTools Network)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools Network)
 find_package(Qt5Xdg REQUIRED)
 
 set(TS_FILES translations/lxqt-mobile-appmenu_it_IT.ts)
@@ -59,6 +59,7 @@ endif()
 
 target_link_libraries(lxqt-mobile-appmenu PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
+    Qt${QT_VERSION_MAJOR}::Network
     Qt5Xdg)
 
 set_target_properties(lxqt-mobile-appmenu PROPERTIES
