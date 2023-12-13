@@ -21,7 +21,7 @@
 #include <QSettings>
 #include <XdgMenu>
 
-AppMenuWindow::AppMenuWindow(QWidget *parent)
+AppMenuWindow::AppMenuWindow(bool stayOnTopFrameless, QWidget *parent)
     : QWidget{parent}
 {
     mSearchEdit = new QLineEdit;
@@ -100,8 +100,11 @@ AppMenuWindow::AppMenuWindow(QWidget *parent)
     // Filter navigation keys
     mSearchEdit->installEventFilter(this);
 
-    setWindowFlag(Qt::FramelessWindowHint);
-    setWindowFlag(Qt::WindowStaysOnTopHint);
+    if(stayOnTopFrameless)
+    {
+        setWindowFlag(Qt::FramelessWindowHint);
+        setWindowFlag(Qt::WindowStaysOnTopHint);
+    }
 }
 
 AppMenuWindow::~AppMenuWindow()

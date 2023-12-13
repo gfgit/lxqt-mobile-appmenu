@@ -19,7 +19,7 @@ class AppMenuWindow : public QWidget
 {
     Q_OBJECT
 public:
-    explicit AppMenuWindow(QWidget *parent = nullptr);
+    explicit AppMenuWindow(bool stayOnTopFrameless, QWidget *parent = nullptr);
     ~AppMenuWindow();
 
     bool rebuildMenu(const XdgMenu &menu);

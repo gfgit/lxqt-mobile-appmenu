@@ -37,9 +37,12 @@ int main(int argc, char *argv[])
                                  "If found it request to close it and then quits.\n"
                                  "If no instance is found then it open a new window\n"
                                  "and start listening for close requests.");
+    QCommandLineOption normalOpt("normalwin",
+                                 "Do not open window as frameless popup with stay on top hint");
 
     QCommandLineParser parser;
     parser.addOption(toggleOpt);
+    parser.addOption(normalOpt);
 
     parser.process(app);
 
@@ -83,7 +86,9 @@ int main(int argc, char *argv[])
                          });
     }
 
-    AppMenuWindow w;
+    bool stayOnTop = !parser.isSet(normalOpt);
+
+    AppMenuWindow w(stayOnTop);
     w.loadSettings();
     w.resetUi();
     w.showMaximized();
