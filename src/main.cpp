@@ -11,15 +11,15 @@ int main(int argc, char *argv[])
     QApplication::setApplicationDisplayName(QLatin1String("Mobile App Menu (LXQt)"));
     QApplication::setApplicationVersion(QLatin1String("1.0"));
 
-    QApplication a(argc, argv);
-    a.setQuitOnLastWindowClosed(true);
+    QApplication app(argc, argv);
+    app.setQuitOnLastWindowClosed(true);
 
     QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();
     for (const QString &locale : uiLanguages) {
         const QString baseName = "lxqt-mobile-appmenu_" + QLocale(locale).name();
         if (translator.load(":/i18n/" + baseName)) {
-            a.installTranslator(&translator);
+            app.installTranslator(&translator);
             break;
         }
     }
@@ -27,5 +27,6 @@ int main(int argc, char *argv[])
     w.loadSettings();
     w.resetUi();
     w.showMaximized();
-    return a.exec();
+
+    return app.exec();
 }
