@@ -21,6 +21,9 @@
 #include <QSettings>
 #include <XdgMenu>
 
+#include <QGestureEvent>
+#include <QGesture>
+
 AppMenuWindow::AppMenuWindow(bool stayOnTopFrameless, QWidget *parent)
     : QWidget{parent}
 {
@@ -105,6 +108,13 @@ AppMenuWindow::AppMenuWindow(bool stayOnTopFrameless, QWidget *parent)
         setWindowFlag(Qt::FramelessWindowHint);
         setWindowFlag(Qt::WindowStaysOnTopHint);
     }
+
+    for(auto gesture : {Qt::TapGesture,
+                         Qt::TapAndHoldGesture,
+                         Qt::PanGesture,
+                         Qt::PinchGesture,
+                         Qt::SwipeGesture})
+        grabGesture(gesture);
 }
 
 AppMenuWindow::~AppMenuWindow()
@@ -246,6 +256,25 @@ void AppMenuWindow::loadMenuFile(const QString &menuFile, const QStringList& env
     }
 
     rebuildMenu(xdgMenu);
+}
+
+bool AppMenuWindow::event(QEvent *e)
+{
+    if(e->type() == QEvent::Gesture)
+    {
+        QGestureEvent *ev = static_cast<QGestureEvent *>(e);
+        QString name;
+#define GESTURE_NAME(x) if(ev->gesture(x)) name = QLatin1String(#x)
+        GESTURE_NAME(Qt::TapGesture);
+        GESTURE_NAME(Qt::TapAndHoldGesture);
+        GESTURE_NAME(Qt::PanGesture);
+        GESTURE_NAME(Qt::PinchGesture);
+        GESTURE_NAME(Qt::SwipeGesture);
+
+        QMessageBox::information(this, tr("Gesture!"), name);
+    }
+
+    return QWidget::event(e);
 }
 
 void AppMenuWindow::setSearchQuery(const QString &text)

@@ -35,6 +35,8 @@ public:
     void loadSettings();
     void loadMenuFile(const QString& menuFile, const QStringList &environments);
 
+    bool event(QEvent *e) override;
+
 public slots:
     void setSearchQuery(const QString& text);
 
