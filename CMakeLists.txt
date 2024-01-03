@@ -17,6 +17,8 @@ set(TS_FILES translations/lxqt-mobile-appmenu_it_IT.ts)
 
 set(PROJECT_SOURCES
         src/main.cpp
+        src/appmenuwindow.cpp
+        src/appmenuwindow.h
 
         src/model/menuappmap.cpp
         src/model/menuappmap.h
@@ -24,8 +26,9 @@ set(PROJECT_SOURCES
         src/model/menuappmodel.h
         src/model/menucategoriesmodel.cpp
         src/model/menucategoriesmodel.h
-        src/appmenuwindow.cpp
-        src/appmenuwindow.h
+
+        src/utils/settings.h
+        src/utils/settings.cpp
         
         ${TS_FILES}
 )
