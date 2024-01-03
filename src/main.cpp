@@ -43,6 +43,7 @@ int main(int argc, char *argv[])
     QCommandLineParser parser;
     parser.addOption(toggleOpt);
     parser.addOption(normalOpt);
+    parser.addHelpOption();
 
     parser.process(app);
 
