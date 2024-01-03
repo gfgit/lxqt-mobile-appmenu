@@ -3,6 +3,8 @@
 #include  "model/menuappmodel.h"
 #include  "model/menucategoriesmodel.h"
 
+#include "utils/settings.h"
+
 #include <QLineEdit>
 #include <QToolButton>
 #include <QComboBox>
@@ -18,7 +20,6 @@
 #include <QGestureEvent>
 #include <QCoreApplication>
 
-#include <QSettings>
 #include <XdgMenu>
 
 AppMenuWindow::AppMenuWindow(bool stayOnTopFrameless, QWidget *parent)
@@ -36,9 +37,6 @@ AppMenuWindow::AppMenuWindow(bool stayOnTopFrameless, QWidget *parent)
     mCloseButton->setToolTip(mCloseButton->text());
     connect(mCloseButton, &QToolButton::clicked, this, &AppMenuWindow::close);
 
-    int buttonIconSz = 2 * mCloseButton->style()->pixelMetric(QStyle::PM_ButtonIconSize, nullptr, mCloseButton);
-    QSize buttoIconSize = {buttonIconSz, buttonIconSz};
-
     mSettingsButton = new QToolButton;
     mSettingsButton->setIcon(QIcon::fromTheme(QStringLiteral("preferences-desktop"))); //TODO: preferences-system?
     mSettingsButton->setText(tr("Settings"));
@@ -50,7 +48,6 @@ AppMenuWindow::AppMenuWindow(bool stayOnTopFrameless, QWidget *parent)
     mPowerButton->setText(tr("Shutdown"));
     mPowerButton->setToolTip(mPowerButton->text());
     connect(mPowerButton, &QToolButton::clicked, this, &AppMenuWindow::runPowerDialog);
-    mPowerButton->setIconSize(buttoIconSize);
 
     mAppMap = new MenuAppMap;
 
@@ -65,8 +62,6 @@ AppMenuWindow::AppMenuWindow(bool stayOnTopFrameless, QWidget *parent)
     mAppView->setSelectionMode(QListView::SingleSelection);
     mAppView->setViewMode(QListView::IconMode);
     mAppView->setMovement(QListView::Static);
-    int sz = 2 * style()->pixelMetric(QStyle::PM_LargeIconSize);
-    mAppView->setIconSize(QSize(sz, sz));
     mAppView->setFlow(QListView::LeftToRight);
     mAppView->setWrapping(true);
     mAppView->setResizeMode(QListView::Adjust);
@@ -226,16 +221,38 @@ bool AppMenuWindow::eventFilter(QObject *watched, QEvent *e)
 
 void AppMenuWindow::loadSettings()
 {
-    const QLatin1String defMenuFile("/etc/xdg/menus/lxqt-applications.menu");
-    const QLatin1String defEnv("X-LXQT;LXQt");
+    Settings settings;
 
-    QSettings settings(QSettings::UserScope);
-    settings.beginGroup(QLatin1String("Menu"));
-    QString menuFile = settings.value(QLatin1String("menuFile"), defMenuFile).toString();
-    QStringList environments = settings.value("desktopEnvironments", defEnv).toString().split(QLatin1Char(';'));
-    settings.endGroup();
+    // Menu
+    loadMenuFile(settings.getMenuFile(), settings.getDesktopEnv().split(QLatin1Char(';')));
 
-    loadMenuFile(menuFile, environments);
+    // Buttons
+    int buttonIconSz = settings.getButtonIconSize();
+    if(buttonIconSz == -1)
+    {
+        // Default to double of style size
+        buttonIconSz = mCloseButton->style()->pixelMetric(QStyle::PM_ButtonIconSize, nullptr, mCloseButton);
+        buttonIconSz *= 2;
+    }
+
+    QSize buttonIconSize(buttonIconSz, buttonIconSz);
+    mCloseButton->setIconSize(buttonIconSize);
+    mSettingsButton->setIconSize(buttonIconSize);
+    mPowerButton->setIconSize(buttonIconSize);
+
+    // View
+    mAppView->setSpacing(settings.getViewSpacing());
+
+    int viewIconSz = settings.getViewIconSize();
+    if(viewIconSz == -1)
+    {
+        // Default to double of style size
+        viewIconSz = mAppView->style()->pixelMetric(QStyle::PM_LargeIconSize, nullptr, mAppView);
+        viewIconSz *= 2;
+    }
+
+    QSize viewIconSize(viewIconSz, viewIconSz);
+    mAppView->setIconSize(viewIconSize);
 }
 
 void AppMenuWindow::loadMenuFile(const QString &menuFile, const QStringList& environments)
