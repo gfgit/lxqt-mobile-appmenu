@@ -233,6 +233,7 @@ void AppMenuWindow::loadSettings()
         // Default to double of style size
         buttonIconSz = mCloseButton->style()->pixelMetric(QStyle::PM_ButtonIconSize, nullptr, mCloseButton);
         buttonIconSz *= 2;
+        settings.setViewIconSize(buttonIconSz);
     }
 
     QSize buttonIconSize(buttonIconSz, buttonIconSz);
@@ -249,6 +250,7 @@ void AppMenuWindow::loadSettings()
         // Default to double of style size
         viewIconSz = mAppView->style()->pixelMetric(QStyle::PM_LargeIconSize, nullptr, mAppView);
         viewIconSz *= 2;
+        settings.setViewIconSize(viewIconSz);
     }
 
     QSize viewIconSize(viewIconSz, viewIconSz);
