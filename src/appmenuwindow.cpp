@@ -1,7 +1,7 @@
 #include "appmenuwindow.h"
-#include  "menuappmap.h"
-#include  "menuappmodel.h"
-#include  "menucategoriesmodel.h"
+#include  "model/menuappmap.h"
+#include  "model/menuappmodel.h"
+#include  "model/menucategoriesmodel.h"
 
 #include <QLineEdit>
 #include <QToolButton>
@@ -29,11 +29,15 @@ AppMenuWindow::AppMenuWindow(bool stayOnTopFrameless, QWidget *parent)
     mSearchEdit->setClearButtonEnabled(true);
     connect(mSearchEdit, &QLineEdit::textEdited, this, &AppMenuWindow::setSearchQuery);
 
+
     mCloseButton = new QToolButton;
     mCloseButton->setIcon(QIcon::fromTheme(QStringLiteral("window-close-symbolic")));
     mCloseButton->setText(tr("Close"));
     mCloseButton->setToolTip(mCloseButton->text());
     connect(mCloseButton, &QToolButton::clicked, this, &AppMenuWindow::close);
+
+    int buttonIconSz = 2 * mCloseButton->style()->pixelMetric(QStyle::PM_ButtonIconSize, nullptr, mCloseButton);
+    QSize buttoIconSize = {buttonIconSz, buttonIconSz};
 
     mSettingsButton = new QToolButton;
     mSettingsButton->setIcon(QIcon::fromTheme(QStringLiteral("preferences-desktop"))); //TODO: preferences-system?
@@ -46,6 +50,7 @@ AppMenuWindow::AppMenuWindow(bool stayOnTopFrameless, QWidget *parent)
     mPowerButton->setText(tr("Shutdown"));
     mPowerButton->setToolTip(mPowerButton->text());
     connect(mPowerButton, &QToolButton::clicked, this, &AppMenuWindow::runPowerDialog);
+    mPowerButton->setIconSize(buttoIconSize);
 
     mAppMap = new MenuAppMap;
 
