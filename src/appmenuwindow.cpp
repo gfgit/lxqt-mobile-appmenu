@@ -22,6 +22,20 @@
 
 #include <XdgMenu>
 
+#include <QProxyStyle>
+
+class SingleActivateStyle : public QProxyStyle
+{
+public:
+    using QProxyStyle::QProxyStyle;
+    int styleHint(StyleHint hint, const QStyleOption * option = nullptr, const QWidget * widget = nullptr, QStyleHintReturn * returnData = nullptr) const override
+    {
+        if(hint == QStyle::SH_ItemView_ActivateItemOnSingleClick)
+            return 1;
+        return QProxyStyle::styleHint(hint, option, widget, returnData);
+    }
+};
+
 AppMenuWindow::AppMenuWindow(bool stayOnTopFrameless, QWidget *parent)
     : QWidget{parent}
 {
@@ -29,6 +43,7 @@ AppMenuWindow::AppMenuWindow(bool stayOnTopFrameless, QWidget *parent)
     mSearchEdit->setPlaceholderText(tr("Search..."));
     mSearchEdit->setClearButtonEnabled(true);
     connect(mSearchEdit, &QLineEdit::textEdited, this, &AppMenuWindow::setSearchQuery);
+    connect(mSearchEdit, &QLineEdit::returnPressed, this, &AppMenuWindow::activateCurrentApp);
 
 
     mCloseButton = new QToolButton;
@@ -67,6 +82,10 @@ AppMenuWindow::AppMenuWindow(bool stayOnTopFrameless, QWidget *parent)
     mAppView->setResizeMode(QListView::Adjust);
     mAppView->setModel(mAppModel);
 
+    SingleActivateStyle *s = new SingleActivateStyle(mAppView->style());
+    s->setParent(mAppView);
+    mAppView->setStyle(s);
+
     // Use TapAndHold to show item tooltips
     mAppView->viewport()->grabGesture(Qt::TapAndHoldGesture);
     mAppView->viewport()->installEventFilter(this);
@@ -74,7 +93,7 @@ AppMenuWindow::AppMenuWindow(bool stayOnTopFrameless, QWidget *parent)
     mCategoryCombo = new QComboBox;
     mCategoryCombo->setModel(mCategoryModel);
 
-    connect(mAppView, &QListView::clicked, this, &AppMenuWindow::appClicked);
+    connect(mAppView, &QListView::activated, this, &AppMenuWindow::activateAppAtIndex);
     connect(mCategoryCombo, qOverload<int>(&QComboBox::activated), this, &AppMenuWindow::categoryClicked);
 
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
@@ -139,13 +158,18 @@ void AppMenuWindow::categoryClicked(int idx)
     setCurrentCategory(idx);
 }
 
-void AppMenuWindow::appClicked(const QModelIndex &idx)
+void AppMenuWindow::activateAppAtIndex(const QModelIndex &idx)
 {
     if(!idx.isValid())
         return;
     auto *app = mAppModel->getAppAt(idx.row());
     app->desktopFileCache.startDetached();
     close();
+}
+
+void AppMenuWindow::activateCurrentApp()
+{
+    activateAppAtIndex(mAppView->currentIndex());
 }
 
 void AppMenuWindow::runPowerDialog()
@@ -190,12 +214,6 @@ bool AppMenuWindow::eventFilter(QObject *watched, QEvent *e)
             // Use Up/Down arrows to navigate app view
             QCoreApplication::sendEvent(mAppView, ev);
             return true;
-        }
-        if(ev->key() == Qt::Key_Return)
-        {
-            //TODO: move to appropriate place
-            // Use Return Key to launch current application
-            appClicked(mAppView->currentIndex());
         }
     }
     else if(watched == mAppView->viewport() && e->type() == QEvent::Gesture)

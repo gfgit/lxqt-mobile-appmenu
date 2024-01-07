@@ -40,7 +40,8 @@ public slots:
 
 private slots:
     void categoryClicked(int idx);
-    void appClicked(const QModelIndex& idx);
+    void activateAppAtIndex(const QModelIndex& idx);
+    void activateCurrentApp();
 
     void runPowerDialog();
     void runSystemConfigDialog();
